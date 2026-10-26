@@ -32,7 +32,9 @@ function lint(text, { dir = ".", checkFiles = true } = {}) {
   const nonEmpty = text.trim().length;
   if (!nonEmpty) { add("error", "empty", 1, "README is empty"); return finish(issues, { headings, words: 0 }); }
   const h1 = headings.filter((h) => h.level === 1);
-  if (!h1.length) add("error", "title", 1, "No top-level # title");
+  const banner = /^\s*(?:<!--[\s\S]*?-->\s*)*(?:<p[^>]*>\s*)?(?:<a[^>]*>\s*)?<img\b[^>]*\balt=["'][^"']+/i.test(text) || /^\s*!\[[^\]]+\]\(/.test(text);
+  if (!h1.length && banner) add("info", "title", 1, "Title is an image banner — fine on GitHub, but add a # heading for search & screen readers");
+  else if (!h1.length) add("error", "title", 1, "No top-level # title");
   else if (h1.length > 1) add("warn", "multiple-h1", h1[1].line, `${h1.length} H1 headings — use one title, ## for sections`);
   let prev = 0; for (const h of headings) { if (prev && h.level > prev + 1) add("warn", "heading-jump", h.line, `Heading jumps from H${prev} to H${h.level}`); prev = h.level; }
   const seen = {}; for (const h of headings) { const k = h.level + ":" + h.text.toLowerCase(); if (seen[k]) add("warn", "duplicate-heading", h.line, `Duplicate heading "${h.text}"`); seen[k] = 1; }
@@ -56,7 +58,7 @@ function lint(text, { dir = ".", checkFiles = true } = {}) {
       if (!img && /^(click here|here|link|this)$/i.test(label.trim())) add("info", "link-text", ln, `Vague link text "${label}"`);
       check(url, ln, img);
     }
-    for (const m of l.matchAll(/<img\b[^>]*>/gi)) { const src = /src=["']([^"']+)/i.exec(m[0])?.[1]; if (!/\balt=["'][^"']+/i.test(m[0])) add("warn", "image-alt", ln, `<img> without alt text${src ? ": " + src : ""}`); if (src) check(src, ln, true); }
+    for (const m of l.matchAll(/<img\b[^>]*>/gi)) { const src = /src=["']([^"']+)/i.exec(m[0])?.[1]; if (!/\balt=["']/i.test(m[0])) add("warn", "image-alt", ln, `<img> without alt text${src ? ": " + src : ""}`); if (src) check(src, ln, true); }
     if (/\b(TODO|TBD|FIXME|lorem ipsum|coming soon)\b/i.test(l)) add("warn", "placeholder", ln, `Placeholder text: "${/\b(TODO|TBD|FIXME|lorem ipsum|coming soon)\b/i.exec(l)[0]}"`);
     if (/\]\(https?:\/\/(localhost|127\.0\.0\.1)/.test(l)) add("warn", "localhost-link", ln, "Link to localhost won't work for readers");
     if (/https?:\/\/github\.com\/[^/\s]+\/[^/\s]+\/blob\/[0-9a-f]{40}/.test(l)) add("info", "pinned-sha-link", ln, "Link pinned to a commit SHA — may go stale");
