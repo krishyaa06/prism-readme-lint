@@ -1,0 +1,36 @@
+{
+  "name": "prism-readme-lint",
+  "version": "1.0.0",
+  "description": "Zero-dependency CLI that scores your README A–F and finds broken links, missing images, broken #anchors, missing sections, heading jumps and placeholders.",
+  "bin": {
+    "readmelint": "bin/readmelint.js"
+  },
+  "main": "src/index.js",
+  "files": [
+    "bin",
+    "src"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [
+    "cli",
+    "readme",
+    "markdown",
+    "linter",
+    "documentation",
+    "open-source",
+    "devtools",
+    "prism-protocol"
+  ],
+  "author": "Soumya Bhandare (krishyaa06)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krishyaa06/prism-readme-lint.git"
+  },
+  "homepage": "https://github.com/krishyaa06/prism-readme-lint#readme",
+  "engines": {
+    "node": ">=18.17"
+  }
+}
