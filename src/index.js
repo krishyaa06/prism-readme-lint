@@ -59,7 +59,7 @@ function lint(text, { dir = ".", checkFiles = true } = {}) {
       check(url, ln, img);
     }
     for (const m of l.matchAll(/<img\b[^>]*>/gi)) { const src = /src=["']([^"']+)/i.exec(m[0])?.[1]; if (!/\balt=["']/i.test(m[0])) add("warn", "image-alt", ln, `<img> without alt text${src ? ": " + src : ""}`); if (src) check(src, ln, true); }
-    if (/\b(TODO|TBD|FIXME|lorem ipsum|coming soon)\b/i.test(l)) add("warn", "placeholder", ln, `Placeholder text: "${/\b(TODO|TBD|FIXME|lorem ipsum|coming soon)\b/i.exec(l)[0]}"`);
+    { const t = l.replace(/`[^`]*`/g, ""); const m = /\b(?:TODO|TBD|FIXME)\b(?=\s*[:(]|\s*$)/.exec(t) || /^\s*[-*]?\s*(?:TODO|TBD)\b/i.exec(t) || /\b(?:lorem ipsum|coming soon)\b/i.exec(t); if (m) add("warn", "placeholder", ln, `Placeholder text: "${m[0].trim().replace(/^[-*]\s*/, "")}"`); }
     if (/\]\(https?:\/\/(localhost|127\.0\.0\.1)/.test(l)) add("warn", "localhost-link", ln, "Link to localhost won't work for readers");
     if (/https?:\/\/github\.com\/[^/\s]+\/[^/\s]+\/blob\/[0-9a-f]{40}/.test(l)) add("info", "pinned-sha-link", ln, "Link pinned to a commit SHA — may go stale");
   });
